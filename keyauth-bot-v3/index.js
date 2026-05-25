@@ -43,9 +43,7 @@ async function registerCommands() {
   }
 }
 
-client.once('ready', async () => {
-  console.log(`✅ Bot ready: ${client.user.tag}`);
-  await registerCommands();
-});
+// Register commands immediately using REST (no need to wait for ready event)
+registerCommands();
 
 client.login(process.env.DISCORD_TOKEN);
