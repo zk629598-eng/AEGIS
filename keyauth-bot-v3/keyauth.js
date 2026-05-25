@@ -1,13 +1,17 @@
 const axios = require('axios');
 
-const BASE_URL = 'https://keyauth.win/api/1.2/';
+const BASE_URL = 'https://keyauth.cc/api/1.2/';
 
 async function request(ownerID, params) {
   try {
     const response = await axios.get(BASE_URL, {
       params: { ownerkey: ownerID, ...params },
       timeout: 10000,
+      headers: {
+        'User-Agent': 'KeyAuthBot/3.0',
+      },
     });
+    console.log('KeyAuth API response:', JSON.stringify(response.data));
     return response.data;
   } catch (err) {
     console.error('KeyAuth API error:', err.message);
@@ -47,7 +51,12 @@ async function verifyKey(ownerID, appName, key) {
 
 // ─── Users ────────────────────────────────────────────────
 async function fetchUsers(ownerID, appName) {
-  return request(ownerID, { type: 'fetchallusers', app: appName });
+  const res = await request(ownerID, { type: 'fetchallusers', app: appName });
+  // KeyAuth sometimes returns users as object not array — fix it
+  if (res && res.users && !Array.isArray(res.users)) {
+    res.users = Object.values(res.users);
+  }
+  return res;
 }
 
 async function banUser(ownerID, appName, user) {
@@ -73,7 +82,7 @@ async function createUser(ownerID, appName, username, password, expiry) {
     app: appName,
     user: username,
     pass: password,
-    expiry: expiry, // days
+    expiry: expiry,
   });
 }
 
