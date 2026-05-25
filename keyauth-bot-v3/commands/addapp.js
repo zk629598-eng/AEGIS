@@ -71,7 +71,8 @@ module.exports = {
 
     if (!submit) return;
 
-    await submit.deferReply({ ephemeral: true });
+    // ✅ FIXED: use update() instead of deferReply() for modal submits
+    await submit.reply({ content: '🔄 Testing credentials...', ephemeral: true });
 
     const label = submit.fields.getTextInputValue('app_label').trim();
     const appName = submit.fields.getTextInputValue('app_name').trim();
@@ -79,8 +80,6 @@ module.exports = {
     const secretKey = submit.fields.getTextInputValue('secret_key').trim();
     const version = submit.fields.getTextInputValue('app_version').trim();
 
-    // Test credentials
-    await submit.editReply({ content: '🔄 Testing credentials...' });
     const test = await keyauth.testCredentials(ownerID, appName);
 
     if (!test.success && test.message?.toLowerCase().includes('invalid')) {
@@ -89,7 +88,6 @@ module.exports = {
       });
     }
 
-    // Save app
     addApp({ label, name: appName, ownerID, secretKey, version });
 
     const embed = new EmbedBuilder()
